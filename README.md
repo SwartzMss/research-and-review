@@ -1,100 +1,104 @@
 # Research & Review
 
-A research-first Codex Skill for collecting, assessing, and reviewing information **before** writing a script or editing a video.
+**Windows 原生的 AI 热点研究与资料审核项目。** 目标是让用户选择信息平台，查看 AI 搜索与分析进度，审核来源，再把经过筛选的资料交给后续的文案/分镜工具。
 
-> 当前重点：热点事件、多来源资料和视频线索的研究、评估与人工审核。**本仓库暂不制作成片。**
+> **当前可运行的是 v0.1「离线资料审核 MVP」；常驻 Web 工作台、Codex App Server 集成、多平台自动搜索都还没有实现。** 不要将路线图误认为已实现功能。
 
-## 能做什么
+## 产品目标
 
-- 根据选题，用 Agent 可用的搜索工具搜集新闻、官方材料、B站/抖音/YouTube 等视频链接。
-- 保留每条信息的原始 URL、发布日期、摘要、可信度依据、关键主张与待核实问题。
-- 将搜索结果保存为结构化 JSON，生成可在本地浏览器打开的审核台。
-- 人工将资料标记为 **仅供研究 / 候选画面 / 排除 / 待定**，并附上备注。
-- 从审核结果导出资料包，交给后续文案或分镜 Skill 使用。
+用户打开本地 Research Workspace，输入主题，勾选新闻、B站、抖音、YouTube 等**当前实际可用**的平台；系统启动研究，逐步展示搜索结果、摘要、来源、视频时间码及核验状态。用户随时标记「仅供研究 / 候选画面 / 排除 / 待定」，所有记录可在刷新或重启后恢复。
 
-本版 **没有**实现任意平台自动搜索或视频下载、转写、OCR、视觉理解、全自动事实核查；这些是后续迭代。Agent 的网页搜索结果也必须明确来源和核验状态。
+- **Codex App Server（规划中）**：通过独立的 Windows 本地进程执行 Agent，维护 thread/turn 和流式事件。你的 ChatGPT 桌面版可以同时独立使用；不要求 WSL。
+- **research-and-review Skill（已存在）**：定义资料收集、信息提取、溯源、评估与审核的规范；也可以在 Codex 中单独使用。
+- **Web UI + 本地任务服务（规划中）**：负责平台选择、任务进度、资料审阅、SQLite 持久化；不用让 Codex 每次重建 HTML。
+- **平台适配器（规划中）**：工具应显式区分搜索、元数据、字幕、下载等能力；支持不足时在界面说明原因。
+- **视频制作不属于本仓库**：后续通过结构化研究资料包对接 Video Director / Video Production。
 
-## 快速开始（Python 3.10+，无第三方依赖）
+详细架构与实施边界：[docs/architecture.md](docs/architecture.md)。
 
-```bash
+## 当前完成情况
+
+| 功能 | 状态 | 实现 |
+| --- | --- | --- |
+| Codex 研究流程规则 | ✅ 已有 | [SKILL.md](SKILL.md) |
+| 资料/用户决策 JSON 结构 | ✅ 已有 | `schemas/` |
+| 离线 HTML 审核页（过滤、备注、导出） | ✅ 已有 | `scripts/build_review.py` / `templates/review.html` |
+| 筛选结果导出为 selected.json | ✅ 已有 | `scripts/apply_selection.py` |
+| 自动化测试 | ✅ 已有 | GitHub Actions + unittest |
+| Windows 本地 Web 工作台（实时任务/持久化） | ⏳ 规划中 | [#5](https://github.com/SwartzMss/research-and-review/issues/5)、[#6](https://github.com/SwartzMss/research-and-review/issues/6) |
+| Codex App Server 进程桥接 | ⏳ 规划中 | [#4](https://github.com/SwartzMss/research-and-review/issues/4) |
+| 平台能力检测、自动搜索 | ⏳ 规划中 | [#7](https://github.com/SwartzMss/research-and-review/issues/7)、[#1](https://github.com/SwartzMss/research-and-review/issues/1) |
+| 视频下载、字幕、转写、视觉理解 | ⏳ 规划中 | [#2](https://github.com/SwartzMss/research-and-review/issues/2) |
+| 数据溯源和交叉核验的自动化增强 | ⏳ 规划中 | [#3](https://github.com/SwartzMss/research-and-review/issues/3) |
+
+注意：Skill 可以指导具备搜索能力的 Codex 收集资料，但**当前仓库没有独立的 B站/抖音搜索器、下载器或自动事实核查引擎**。示例 JSON 均为虚构，不能用于真实新闻引用。
+
+## Windows：现在就可以体验的离线功能
+
+需要 Git 和 Python 3.10+，**无需 Node.js、API Key、WSL 或第三方 Python 包**。在 **PowerShell** 中执行：
+
+```powershell
 git clone https://github.com/SwartzMss/research-and-review.git
-cd research-and-review
+Set-Location .\research-and-review
 
-# 用示例数据生成审核页
-python scripts/build_review.py examples/sources.json --output output/review.html
+py -3 scripts/build_review.py examples/sources.json --output output/review.html
+Start-Process (Resolve-Path .\output\review.html).Path
 ```
 
-在浏览器打开 `output/review.html`，按来源选择决策和填写备注，点击 **导出 selection.json**。将下载的文件放到 `output/selection.json`，然后运行：
+浏览器里给资料标注待定、仅供研究、候选画面或排除，填写备注，然后点击 **导出 selection.json**。将导出的 JSON 复制到项目的 `output\selection.json`，执行：
 
-```bash
-python scripts/apply_selection.py examples/sources.json output/selection.json --output output/selected.json
-
-# 测试
-python -m unittest discover -s tests -v
+```powershell
+py -3 scripts/apply_selection.py examples/sources.json output/selection.json --output output/selected.json
+py -3 -m unittest discover -s tests -v
 ```
 
-生成的 `selected.json` 只包含人工明确选为「仅供研究」或「候选画面」的记录。审核页不会自动向 GitHub 或外部服务器发送选择结果。
+如果没有 `py` 启动器，可改用 `python`。输出的 `selected.json` 仅包含人工明确采纳的记录，采纳不代表事实已核实或素材已获得使用授权。
 
-### 安装到 Codex
+### Windows：让 Codex 发现 Skill
 
-仓库根目录就是 Skill 目录（包含 `SKILL.md`）。在本地安装到 Codex 用户级 Skills 目录：
+本仓库根目录的 `SKILL.md` 是内容源文件；**仅将 App Server 的工作目录指向此仓库，不能保证 Codex 自动发现根目录的 Skill**。按官方约定将整个仓库安装到用户级 Skill 目录：
 
-```bash
-mkdir -p ~/.agents/skills
-git clone https://github.com/SwartzMss/research-and-review.git ~/.agents/skills/research-and-review
+```powershell
+New-Item -ItemType Directory -Force "$HOME\.agents\skills" | Out-Null
+git clone https://github.com/SwartzMss/research-and-review.git "$HOME\.agents\skills\research-and-review"
 ```
 
-如果你已经克隆了仓库，可将仓库作为 `~/.agents/skills/research-and-review` 使用。更新时在该目录执行 `git pull`。Windows PowerShell 对应用户目录为 `$HOME\.agents\skills\research-and-review`。重新启动或刷新 Codex 的 Skill 列表后，检查是否能发现 `research-and-review`。
+如果已经克隆到该目录，无须再次 clone；在该目录 `git pull` 即可更新。Codex 通常会自动检测 Skill 更新，未显示时重启。使用 `$research-and-review` 显式调用。
 
-### 让 Codex 按 Skill 工作
+**未来使用 App Server 还需要 Codex CLI 可执行程序**，但不代表必须用 CLI 聊天，也不能假定安装了 ChatGPT Windows 桌面应用就自动具备 CLI：
 
-在 Codex 能读取本仓库的环境中，指示它遵循 [SKILL.md](SKILL.md)：
-
-> 研究「塞尔维亚学生运动」，先搜集 10–20 个具有来源的新闻与视频候选，按照 schemas/sources.schema.json 生成项目 sources.json，标明未核实的信息；执行 build_review.py，交给我筛选。未得到选择结果，不要继续写解说文案或制作视频。
-
-**研究与运行产物应放在仓库外的项目目录**，或者放在被 gitignore 忽略的 `output/` 下。仓库本身只保留 Skill、工具和示例。
-
-## 工作流
-
-```text
-用户选题
-  → Agent 搜索、去重、摘取关键事实/观点
-  → 标注原始来源、核验状态、使用授权
-  → sources.json
-  → build_review.py
-  → 浏览器查看资料、缩略图/本地预览、时间码
-  → 人工决策 + 备注 → selection.json
-  → apply_selection.py → selected.json
-  → （未来）Video Director / Video Production
+```powershell
+Get-Command codex -ErrorAction SilentlyContinue
+codex --version
+codex app-server --help
 ```
 
-### 最重要的原则
+找不到命令时，先参阅 [Codex CLI 官方文档](https://developers.openai.com/codex/cli) 安装及登录。后端会使用本机 Codex 的认证配置；**当前仓库尚未包含该后端**。
 
-1. 不把“视频作者声称”直接当成已核实事实；相关数字需要溯源到原始证据。
-2. 视频画面展示了什么，与画面发生在何时何地，是两个不同的问题。
-3. 找不到来源就标注 `unverified`，不要编造时间码、播放量、评论量、图片授权或事实。
-4. 「候选画面」只是编辑决策，不代表获得版权许可；另行核查授权。
-5. 涉及平台内容的抓取、下载、转写和展示，应遵守适用法规及平台规则。
+## 使用 Codex 进行研究（现阶段）
 
-## 文件结构
+在能够使用 Skill 的 Codex 会话里输入：
 
-```text
-SKILL.md                     Codex 工作指引
-schemas/sources.schema.json  输入数据契约
-schemas/selection.schema.json 审核选择格式
-scripts/common.py            数据验证
-scripts/build_review.py      构建 HTML 审核台
-scripts/apply_selection.py   审核结果导出
-templates/review.html        无依赖审核界面
-examples/                    虚构演示数据（不可当事实引用）
-tests/                       标准库 unittest
-```
+> 使用 $research-and-review 研究「塞尔维亚学生运动」。搜索多个独立来源的新闻与相关视频，保留 URL、日期、关键观点、未验证数据和版权状态。输出符合 schemas/sources.schema.json 的 sources.json，生成本地 review.html 让我审核；我做完选择之前不要生成视频。
 
-## 路线图
+研究产物放在独立的项目目录或 gitignore 排除的 `output/`，不要提交个人文件、媒体、凭据或第三方下载后端。
 
-- **v0.1：研究与审核闭环（当前）**：数据契约、审核台、选择结果导出、测试。
-- **v0.2：视频理解**：授权媒体导入、字幕提取、Whisper 转写、关键帧和 OCR，精确记录时间码。
-- **v0.3：更强的研究**：可配置搜索适配器、证据追溯、来源独立性判断和交叉核实。
-- **后续项目**：文案导演与视频制作保持独立，通过 JSON 资料包对接。
+## 后续路线（按依赖开发）
+
+1. **P0：工作台底座** — [#4 App Server](https://github.com/SwartzMss/research-and-review/issues/4) → [#5 任务服务](https://github.com/SwartzMss/research-and-review/issues/5) + [#7 能力检测](https://github.com/SwartzMss/research-and-review/issues/7) → [#6 Web UI](https://github.com/SwartzMss/research-and-review/issues/6)。先用 mock 搜索结果验证整个交互闭环。
+2. **P1：真实资料发现** — [#1 多平台搜索](https://github.com/SwartzMss/research-and-review/issues/1)，按平台逐个接入、测试，不承诺一开始全部支持。
+3. **P2：内容理解与核验** — [#2 视频理解](https://github.com/SwartzMss/research-and-review/issues/2)、[#3 事实核查](https://github.com/SwartzMss/research-and-review/issues/3)。
+
+项目不会把「用户选择了某平台」等同于「那个平台的所有能力都可用」。平台具体能力的检测结果应由后端真实工具确定。
+
+## 开发约束
+
+- Windows Native 优先；未来可以考虑跨平台，但 MVP 不依赖 WSL。
+- App Server 优先使用 stdio JSON-RPC，默认不使用 experimental API 或公开监听的服务端口。
+- 前端不直接接触 Codex 凭据；后端默认只监听 `127.0.0.1`。
+- 真实研究任务的进度应由工具/任务管理器报告；不得由 AI 自称的百分比推断。
+- 资料来源与视频版权需分开记录；用户标记候选镜头不代表获得再使用许可。
+
+相关官方文档：[Codex App Server](https://developers.openai.com/codex/app-server) · [Codex Skills](https://developers.openai.com/codex/skills)。
 
 License: [MIT](LICENSE).
