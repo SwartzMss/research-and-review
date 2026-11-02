@@ -35,6 +35,17 @@ python -m unittest discover -s tests -v
 
 生成的 \`selected.json\` 只包含人工明确选为「仅供研究」或「候选画面」的记录。审核页不会自动向 GitHub 或外部服务器发送选择结果。
 
+### 安装到 Codex
+
+仓库根目录就是 Skill 目录（包含 \`SKILL.md\`）。在本地安装到 Codex 用户级 Skills 目录：
+
+\`\`\`bash
+mkdir -p ~/.agents/skills
+git clone https://github.com/SwartzMss/research-and-review.git ~/.agents/skills/research-and-review
+\`\`\`
+
+如果你已经克隆了仓库，可将仓库作为 \`~/.agents/skills/research-and-review\` 使用。更新时在该目录执行 \`git pull\`。Windows PowerShell 对应用户目录为 \`$HOME\.agents\skills\research-and-review\`。重新启动或刷新 Codex 的 Skill 列表后，检查是否能发现 \`research-and-review\`。
+
 ### 让 Codex 按 Skill 工作
 
 在 Codex 能读取本仓库的环境中，指示它遵循 [SKILL.md](SKILL.md)：
