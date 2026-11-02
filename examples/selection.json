@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "topic": "示例：热点研究审核流程（全部为虚构测试项）",
+  "exported_at": "2026-11-02T00:00:00.000Z",
+  "decisions": [
+    {
+      "source_id": "article001",
+      "decision": "research",
+      "note": "仅作流程演示"
+    },
+    {
+      "source_id": "video001",
+      "decision": "visual",
+      "note": "仍需核查版权"
+    },
+    {
+      "source_id": "post001",
+      "decision": "exclude",
+      "note": "未核实"
+    }
+  ]
+}

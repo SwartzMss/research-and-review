@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "topic": "示例：热点研究审核流程（全部为虚构测试项）",
+  "generated_at": "2026-11-02",
+  "sources": [
+    {
+      "id": "article001",
+      "kind": "article",
+      "title": "示例新闻文章（虚构）",
+      "url": "https://example.com/news",
+      "publisher": "Example Publisher",
+      "published_at": "2026-11-01",
+      "summary": "演示文章摘要。该条目仅用于界面测试，不代表任何真实事件。",
+      "relevance": 4,
+      "credibility": "unknown",
+      "evaluation": "没有真实来源可供核实；仅用于检查审核流程。",
+      "rights": "not-applicable",
+      "claims": [
+        {
+          "text": "这是一项虚构的数据主张，不能用于正式内容。",
+          "status": "unverified"
+        }
+      ]
+    },
+    {
+      "id": "video001",
+      "kind": "video",
+      "title": "示例视频素材（虚构）",
+      "url": "https://example.com/video",
+      "publisher": "Example Video",
+      "summary": "演示视频描述、片段时间码和候选镜头的呈现方式。",
+      "relevance": 5,
+      "credibility": "unknown",
+      "evaluation": "视频 URL 和片段时间码均为演示占位，未实际查看视频。",
+      "rights": "unknown",
+      "claims": [
+        {
+          "text": "示例创作者提到一项未经证实的统计数字。",
+          "status": "reported",
+          "at_seconds": 21
+        }
+      ],
+      "clips": [
+        {
+          "start": 12,
+          "end": 21,
+          "description": "演示用：广角人群画面",
+          "use_for": "规模概述（仅为界面示例）"
+        }
+      ]
+    },
+    {
+      "id": "post001",
+      "kind": "post",
+      "title": "示例社交讨论（虚构）",
+      "url": "https://example.com/post",
+      "summary": "演示对公众观点的归纳。",
+      "relevance": 2,
+      "credibility": "unknown",
+      "evaluation": "无真实评论数据，不得声称为高赞或代表性观点。",
+      "rights": "unknown"
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Research Review Decisions",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "topic",
+    "decisions"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "topic": {
+      "type": "string",
+      "minLength": 1
+    },
+    "exported_at": {
+      "type": "string"
+    },
+    "decisions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "source_id",
+          "decision",
+          "note"
+        ],
+        "properties": {
+          "source_id": {
+            "type": "string"
+          },
+          "decision": {
+            "enum": [
+              "pending",
+              "research",
+              "visual",
+              "exclude"
+            ]
+          },
+          "note": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

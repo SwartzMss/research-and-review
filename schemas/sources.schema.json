@@ -1,0 +1,182 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Research & Review Source Catalog",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "topic",
+    "sources"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "topic": {
+      "type": "string",
+      "minLength": 1
+    },
+    "generated_at": {
+      "type": "string"
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/source"
+      }
+    }
+  },
+  "$defs": {
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "kind",
+        "title",
+        "url",
+        "summary",
+        "relevance",
+        "credibility",
+        "evaluation",
+        "rights"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_-]+$"
+        },
+        "kind": {
+          "enum": [
+            "article",
+            "report",
+            "video",
+            "post"
+          ]
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "url": {
+          "type": "string",
+          "pattern": "^https?://"
+        },
+        "publisher": {
+          "type": "string"
+        },
+        "published_at": {
+          "type": "string"
+        },
+        "summary": {
+          "type": "string",
+          "minLength": 1
+        },
+        "relevance": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 5
+        },
+        "credibility": {
+          "enum": [
+            "high",
+            "medium",
+            "low",
+            "unknown"
+          ]
+        },
+        "evaluation": {
+          "type": "string",
+          "minLength": 1
+        },
+        "rights": {
+          "enum": [
+            "licensed",
+            "permission-required",
+            "unknown",
+            "not-applicable"
+          ]
+        },
+        "thumbnail_url": {
+          "type": "string",
+          "pattern": "^https?://"
+        },
+        "preview_path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "claims": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/claim"
+          }
+        },
+        "clips": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/clip"
+          }
+        }
+      }
+    },
+    "claim": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "text",
+        "status"
+      ],
+      "properties": {
+        "text": {
+          "type": "string",
+          "minLength": 1
+        },
+        "status": {
+          "enum": [
+            "verified",
+            "reported",
+            "disputed",
+            "unverified"
+          ]
+        },
+        "evidence_urls": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^https?://"
+          }
+        },
+        "at_seconds": {
+          "type": "number",
+          "minimum": 0
+        }
+      }
+    },
+    "clip": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "start",
+        "end",
+        "description"
+      ],
+      "properties": {
+        "start": {
+          "type": "number",
+          "minimum": 0
+        },
+        "end": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1
+        },
+        "use_for": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

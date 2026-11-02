@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Research & Review · 素材审核台</title>
+<style>
+:root{color-scheme:light;--bg:#f4f6fa;--card:#fff;--ink:#182236;--muted:#637084;--edge:#dfe5ee;--accent:#3759a5;--soft:#edf3ff;--red:#9a3131}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}
+header{background:#142746;color:#fff;padding:34px max(22px,calc((100vw - 1160px)/2));}
+header h1{font-size:27px;margin:0 0 6px}header p{margin:3px 0;color:#d2ddf4}main{max-width:1160px;margin:24px auto;padding:0 20px 50px}
+.notice{padding:14px 18px;background:#fff9e9;border:1px solid #efdbab;border-radius:12px;font-size:13px;color:#615023;margin-bottom:18px}
+.metrics{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.metric{flex:1;min-width:130px;padding:13px 18px;background:var(--card);border:1px solid var(--edge);border-radius:12px}
+.metric strong{display:block;font-size:25px}.metric span{color:var(--muted);font-size:12px}
+.toolbar{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin:18px 0}
+input[type=search],select,textarea{border:1px solid #c7d0df;border-radius:8px;background:white;color:var(--ink);font:inherit}
+input[type=search]{flex:2;min-width:230px;padding:10px 12px}
+.toolbar select{flex:1;min-width:135px;padding:10px 12px}
+#cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,450px),1fr));gap:15px}
+.card{background:var(--card);border:1px solid var(--edge);border-radius:14px;padding:19px;min-width:0}
+.cardhead{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}
+.title{font-weight:700;font-size:18px;line-height:1.4;margin:4px 0 7px}.tag{display:inline-block;border-radius:7px;padding:3px 8px;background:var(--soft);color:#324d86;font-size:12px}
+.meta{color:var(--muted);font-size:12px;overflow-wrap:anywhere}.summary{margin:15px 0;font-size:14px}
+a{color:var(--accent);overflow-wrap:anywhere}a:hover{text-decoration:underline}
+.img{display:block;width:100%;max-height:250px;object-fit:cover;border-radius:9px;margin:12px 0}
+video{width:100%;max-height:260px;border-radius:9px;margin:12px 0;background:#101828}
+.details{background:#f8faff;border:1px solid #e6ecf6;padding:12px;border-radius:9px;margin:12px 0;font-size:13px}
+.details p{margin:3px 0 8px}.details ul{margin:6px 0;padding-left:18px}.details li{margin:6px 0}
+.row{display:flex;gap:10px;align-items:flex-start;justify-content:space-between}
+.small{font-size:12px;color:var(--muted)}.flag{font-size:12px;color:#865c1a}
+.actions{border-top:1px solid var(--edge);margin-top:16px;padding-top:14px;display:grid;gap:10px}
+.actions label{font-weight:600;font-size:13px}.actions select,.actions textarea{display:block;width:100%;padding:9px;margin-top:5px}
+.actions textarea{height:70px;resize:vertical}
+button{border:0;background:var(--accent);color:white;padding:12px 17px;border-radius:9px;font-weight:700;cursor:pointer}
+button:hover{filter:brightness(1.08)}button:focus-visible,a:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid #79a1ff;outline-offset:2px}
+.footer{background:white;border:1px solid var(--edge);padding:20px;border-radius:12px;margin-top:19px;display:flex;gap:16px;flex-wrap:wrap;align-items:center;justify-content:space-between}
+.empty{padding:45px 20px;text-align:center;color:var(--muted);grid-column:1/-1}
+@media(max-width:650px){header{padding:25px 20px}.card{padding:15px}.footer button{width:100%}}
+</style>
+</head>
+<body>
+<header>
+<h1>Research & Review · 素材审核台</h1>
+<p id="topic"></p>
+<p>先筛选研究资料与候选画面，再进入文案和分镜阶段。</p>
+</header>
+<main>
+<div class="notice">这是人工审核工具，不会自动验证事实或获得素材授权。「候选画面」只表示可考虑用于后续分镜。请从每项原始链接检查来源和版权。</div>
+<section class="metrics" aria-label="审核统计">
+<div class="metric"><strong id="total">0</strong><span>候选来源</span></div>
+<div class="metric"><strong id="reviewed">0</strong><span>已处理（不含待定）</span></div>
+<div class="metric"><strong id="selected">0</strong><span>选入研究或画面</span></div>
+</section>
+<section class="toolbar" aria-label="搜索与过滤">
+<input id="query" type="search" placeholder="搜索标题、摘要、来源或内容主张…" aria-label="搜索资料">
+<select id="kind" aria-label="按资料类型筛选">
+<option value="all">全部类型</option><option value="article">新闻文章</option><option value="report">报告/原始资料</option><option value="video">视频</option><option value="post">社交讨论</option>
+</select>
+<select id="status" aria-label="按审核状态筛选">
+<option value="all">全部状态</option><option value="pending">待定</option><option value="research">仅供研究</option><option value="visual">候选画面</option><option value="exclude">排除</option>
+</select>
+<select id="order" aria-label="排序">
+<option value="relevance">相关性优先</option><option value="original">原始顺序</option><option value="title">标题排序</option>
+</select>
+</section>
+<section id="cards" aria-label="候选资料"></section>
+<section class="footer">
+<div><strong>完成选择后导出 JSON</strong><div class="small">文件仅保存在本地下载目录，请交回 Codex 供下一步处理。</div></div>
+<button id="export">导出 selection.json</button>
+</section>
+</main>
+<script id="catalog" type="application/json">__CATALOG_JSON__</script>
+<script>
+"use strict";
+const catalog=JSON.parse(document.getElementById("catalog").textContent);
+const states=Object.fromEntries(catalog.sources.map(function(s){return [s.id,{decision:"pending",note:""}];}));
+const kinds={article:"新闻文章",report:"报告/原始资料",video:"视频",post:"社交讨论"};
+const cred={high:"较高",medium:"中等",low:"较低",unknown:"未知"};
+const rights={licensed:"已有授权信息（仍需核对条件）","permission-required":"需要许可",unknown:"授权不明","not-applicable":"不适用"};
+const verify={verified:"已附核验证据",reported:"来源陈述，未独立核实",disputed:"存在争议",unverified:"未核实"};
+function make(tag,cls,txt){const n=document.createElement(tag);if(cls)n.className=cls;if(txt!==undefined&&txt!==null)n.textContent=String(txt);return n;}
+function addText(parent,tag,cls,txt){const n=make(tag,cls,txt);parent.appendChild(n);return n;}
+function link(url,label){const n=make("a",null,label);n.href=url;n.target="_blank";n.rel="noopener noreferrer";return n;}
+function seconds(value){const n=Math.floor(value);return String(Math.floor(n/60)).padStart(2,"0")+":"+String(n%60).padStart(2,"0");}
+function metrics(){
+ document.getElementById("total").textContent=String(catalog.sources.length);
+ document.getElementById("reviewed").textContent=String(Object.values(states).filter(v=>v.decision!=="pending").length);
+ document.getElementById("selected").textContent=String(Object.values(states).filter(v=>v.decision==="research"||v.decision==="visual").length);
+}
+function render(){
+ const query=document.getElementById("query").value.trim().toLowerCase();
+ const kind=document.getElementById("kind").value;
+ const status=document.getElementById("status").value;
+ const order=document.getElementById("order").value;
+ let list=catalog.sources.filter(function(s){
+   const hay=[s.title,s.summary,s.publisher||"",s.evaluation].concat((s.claims||[]).map(c=>c.text)).join(" ").toLowerCase();
+   return (!query||hay.includes(query))&&(kind==="all"||kind===s.kind)&&(status==="all"||states[s.id].decision===status);
+ });
+ if(order==="relevance")list.sort((a,b)=>b.relevance-a.relevance);
+ if(order==="title")list.sort((a,b)=>a.title.localeCompare(b.title));
+ const container=document.getElementById("cards");container.replaceChildren();
+ if(!list.length){addText(container,"div","empty","没有符合条件的资料。");}
+ for(const s of list)container.appendChild(card(s));
+ metrics();
+}
+function card(s){
+ const root=make("article","card");
+ const head=make("div","cardhead");
+ const left=make("div");
+ addText(left,"span","tag",kinds[s.kind]);
+ addText(left,"h2","title",s.title);
+ addText(left,"div","meta",(s.publisher||"来源未注明")+(s.published_at?" · "+s.published_at:" · 日期未知")+" · 相关性 "+s.relevance+"/5");
+ head.appendChild(left);root.appendChild(head);
+ addText(root,"p","summary",s.summary);
+ const go=link(s.url,"打开原始来源 ↗");root.appendChild(go);
+ if(s.thumbnail_url){const img=make("img","img");img.src=s.thumbnail_url;img.alt="来源缩略图";img.loading="lazy";img.referrerPolicy="no-referrer";root.appendChild(img);}
+ if(s.preview_path && s.kind==="video"){const vid=make("video");vid.controls=true;vid.preload="metadata";vid.src=s.preview_path;root.appendChild(vid);addText(root,"div","small","本地授权片段预览，路径相对于此 HTML 文件。");}
+ const detail=make("div","details");
+ addText(detail,"strong",null,"资料评估");
+ addText(detail,"p",null,"可信度："+cred[s.credibility]+"；授权："+rights[s.rights]);
+ addText(detail,"p",null,s.evaluation);
+ if(s.claims&&s.claims.length){
+   addText(detail,"strong",null,"关键主张（不代表事实已成立）");
+   const ul=make("ul");
+   for(const c of s.claims){
+     const li=make("li");addText(li,"span",null,c.text+" · "+verify[c.status]+(c.at_seconds!==undefined?" · "+seconds(c.at_seconds):""));
+     for(const u of (c.evidence_urls||[])){li.appendChild(make("span",null," "));li.appendChild(link(u,"证据来源"));}ul.appendChild(li);
+   }detail.appendChild(ul);
+ }
+ if(s.clips&&s.clips.length){
+   addText(detail,"strong",null,"候选片段（时间码须核实）");
+   const ul=make("ul");
+   for(const c of s.clips){addText(ul,"li",null,seconds(c.start)+"–"+seconds(c.end)+" "+c.description+(c.use_for?" · 用于："+c.use_for:""));}
+   detail.appendChild(ul);
+ }
+ root.appendChild(detail);
+ const actions=make("div","actions");
+ const choiceLabel=make("label",null,"审核决定");
+ const select=make("select");
+ const choices=[["pending","待定"],["research","仅供研究"],["exclude","排除"]];
+ if(s.kind==="video")choices.splice(2,0,["visual","候选画面"]);
+ for(const p of choices){const opt=make("option",null,p[1]);opt.value=p[0];select.appendChild(opt);}
+ select.value=states[s.id].decision;
+ select.addEventListener("change",function(){states[s.id].decision=select.value;metrics();if(document.getElementById("status").value!=="all")render();});
+ choiceLabel.appendChild(select);actions.appendChild(choiceLabel);
+ const noteLabel=make("label",null,"备注（可填写原因、待查问题或镜头使用建议）");
+ const note=make("textarea");note.placeholder="例如：这段只用作事实核对；不要引用未证实人数…";
+ note.value=states[s.id].note;note.addEventListener("input",function(){states[s.id].note=note.value;});
+ noteLabel.appendChild(note);actions.appendChild(noteLabel);
+ root.appendChild(actions);
+ return root;
+}
+function save(){
+ const data={schema_version:1,topic:catalog.topic,exported_at:new Date().toISOString(),decisions:catalog.sources.map(s=>({source_id:s.id,decision:states[s.id].decision,note:states[s.id].note}))};
+ const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json;charset=utf-8"});
+ const url=URL.createObjectURL(blob);
+ const a=document.createElement("a");a.href=url;a.download="selection.json";document.body.appendChild(a);a.click();a.remove();
+ setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+document.getElementById("topic").textContent=catalog.topic;
+for(const id of ["query","kind","status","order"]){
+ document.getElementById(id).addEventListener(id==="query"?"input":"change",render);
+}
+document.getElementById("export").addEventListener("click",save);
+render();
+</script>
+</body>
+</html>
